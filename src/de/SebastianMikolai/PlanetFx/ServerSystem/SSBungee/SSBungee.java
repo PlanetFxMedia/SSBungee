@@ -71,7 +71,6 @@ public class SSBungee extends Plugin {
 			database_db = config.getString("database.db");
 			database_user = config.getString("database.user");
 			database_password = config.getString("database.password");
-			//tcp_port = config.getInt("tcpport");
 			bcpath = config.getString("bcpath");
 		} catch (IOException e) {
 			e.printStackTrace();
