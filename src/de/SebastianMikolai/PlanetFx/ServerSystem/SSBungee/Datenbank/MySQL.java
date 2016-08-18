@@ -11,23 +11,34 @@ import de.SebastianMikolai.PlanetFx.ServerSystem.SSBungee.MinecraftServer.Minecr
 
 public class MySQL {
 
-	public static Connection c = null;
-	public static Statement database;
+	public static Connection con;
 	
-	public static void Connect() {
+	public static Connection Connect() {
 		try {
-			c = DriverManager.getConnection("jdbc:mysql://" + SSBungee.getInstance().database_host + ":" + 
+			Connection con = DriverManager.getConnection("jdbc:mysql://" + SSBungee.getInstance().database_host + ":" + 
 					SSBungee.getInstance().database_port + "/" + SSBungee.getInstance().database_db + 
 					"?user=" + SSBungee.getInstance().database_user + "&password=" + SSBungee.getInstance().database_password);
-			database = c.createStatement();
-			SSBungee.getInstance().getLogger().info("Die Verbindung zur Datenbank wurde hergestellt!");
+			return con;
 		} catch (Exception e) {
-			System.exit(0);
+			e.printStackTrace();
+			return null;
 		}
 	}
-
+	
+	public static Connection getConnection() {
+		try {
+			if (con.isClosed()) {
+				con = Connect();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return con;
+	}
+	
 	public static void LadeTabellen() {
 		try {
+			Connection c = getConnection();
 			Statement stmt = c.createStatement();
 			ResultSet rss = stmt.executeQuery("SHOW TABLES LIKE 'MinecraftServer'");
 			if (rss.next()) {
@@ -37,21 +48,27 @@ public class MySQL {
 				SSBungee.getInstance().getLogger().info("Die Tabelle MinecraftServer wurde erstellt! (" + rs + ")");
 			}
 		} catch (SQLException e) {
-			System.exit(0);
+			e.printStackTrace();
 		}
 	}
 	
 	public static void addMinecraftServer(MinecraftServer mcs) {
 		try {
+			Connection c = getConnection();
 			Statement stmt = c.createStatement();
 			stmt.execute("INSERT INTO MinecraftServer (BungeeCordServername, Port, Map, Modi) VALUES ('" + mcs.getBungeeCordServername() + "', '" + mcs.getPort() +  "', '" + mcs.getMap() + "', '" + mcs.getModi() + "')");
-		} catch (SQLException e) {}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static void deleteMinecraftServer(String BungeeCordServername) {
 		try {
+			Connection c = getConnection();
 			Statement stmt = c.createStatement();
 			stmt.execute("DELETE FROM MinecraftServer WHERE BungeeCordServername='" + BungeeCordServername + "'");
-		} catch (SQLException e) {}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }
