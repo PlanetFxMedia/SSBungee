@@ -16,8 +16,7 @@ public class MySQL {
 	public static Connection Connect() {
 		try {
 			Connection con = DriverManager.getConnection("jdbc:mysql://" + SSBungee.getInstance().database_host + ":" + 
-					SSBungee.getInstance().database_port + "/" + SSBungee.getInstance().database_db + 
-					"?user=" + SSBungee.getInstance().database_user + "&password=" + SSBungee.getInstance().database_password);
+					SSBungee.getInstance().database_port + "/" + SSBungee.getInstance().database_db + "?autoReconnect=true", SSBungee.getInstance().database_user, SSBungee.getInstance().database_password);
 			return con;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -29,8 +28,7 @@ public class MySQL {
 		try {
 			if (con == null) {
 				con = Connect();
-			}
-			if (con.isClosed()) {
+			} else if (con.isClosed()) {
 				con = Connect();
 			}
 		} catch (SQLException e) {
