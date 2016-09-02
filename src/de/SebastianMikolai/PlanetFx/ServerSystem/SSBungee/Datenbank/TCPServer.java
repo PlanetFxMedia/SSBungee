@@ -20,7 +20,9 @@ public class TCPServer extends Thread {
 		try {
 			serversocket = new ServerSocket(port);
 			SSBungee.getInstance().getLogger().info("Der TCP-Server läuft auf Port: " + port);
-		} catch (IOException e) {}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void run() {
@@ -40,12 +42,16 @@ public class TCPServer extends Thread {
 					}
 				}
 			}
-		} catch (IOException e) {}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void close() {
 		try {
 			serversocket.close();
-		} catch (IOException e) {}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
     }
 }

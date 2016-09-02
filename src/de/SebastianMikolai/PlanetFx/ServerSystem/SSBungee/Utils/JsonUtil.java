@@ -19,7 +19,8 @@ public class JsonUtil {
 		try {
 			jsonParser.parse(strg);
 			return true;
-		} catch (JsonSyntaxException ex) {
+		} catch (JsonSyntaxException e) {
+			e.printStackTrace();
 			return false;
 		}
 	}

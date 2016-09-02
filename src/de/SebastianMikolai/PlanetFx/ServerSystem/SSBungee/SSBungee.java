@@ -81,14 +81,18 @@ public class SSBungee extends Plugin {
 		try {
 			File fconfig = new File(bcpath, "config.yml");
 			Configuration config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(fconfig);
-			config.set("servers." + mcs.getBungeeCordServername() + ".motd", "CloudSystem_Minigames_" + mcs.getBungeeCordServername());
+			config.set("servers." + mcs.getBungeeCordServername() + ".motd", "CloudSystem_" + mcs.getBungeeCordServername());
 			config.set("servers." + mcs.getBungeeCordServername() + ".address", "localhost:" + mcs.getPort());
 			config.set("servers." + mcs.getBungeeCordServername() + ".restricted", false);
 			ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, fconfig);
-		} catch (IOException e) {}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		try {
 			BungeeCord.getInstance().config.load();
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void removeServerFromConfig(MinecraftServer mcs) {
@@ -97,9 +101,13 @@ public class SSBungee extends Plugin {
 			Configuration config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(fconfig);
 			config.set("servers." + mcs.getBungeeCordServername(), null);
 			ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, fconfig);
-		} catch (IOException e) {}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		try {
 			BungeeCord.getInstance().config.load();
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
