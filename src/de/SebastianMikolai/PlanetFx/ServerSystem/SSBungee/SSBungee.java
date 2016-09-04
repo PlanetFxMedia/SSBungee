@@ -2,12 +2,15 @@ package de.SebastianMikolai.PlanetFx.ServerSystem.SSBungee;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.sql.SQLException;
 
+import de.SebastianMikolai.PlanetFx.ServerSystem.SSBungee.Datenbank.LoadServers;
 import de.SebastianMikolai.PlanetFx.ServerSystem.SSBungee.Datenbank.MySQL;
-import de.SebastianMikolai.PlanetFx.ServerSystem.SSBungee.Datenbank.TCPServer;
 import de.SebastianMikolai.PlanetFx.ServerSystem.SSBungee.MinecraftServer.MinecraftServer;
 
-import net.md_5.bungee.BungeeCord;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
@@ -21,9 +24,6 @@ public class SSBungee extends Plugin {
 	public String database_db;
 	public String database_user;
 	public String database_password;
-	public int tcp_port = 25606;
-	public String bcpath;
-	public TCPServer tcp;
 	
 	public static SSBungee getInstance() {
 		return instance;
@@ -35,15 +35,16 @@ public class SSBungee extends Plugin {
 		LoadConfig();
 		MySQL.Connect();
 		MySQL.LadeTabellen();
-		MySQL.deleteMinecraftServer("bungee");
-		MySQL.addMinecraftServer(new MinecraftServer("bungee", tcp_port, "", "4x1"));
-		tcp = new TCPServer(25606);
-		tcp.start();
+		ProxyServer.getInstance().getScheduler().runAsync(instance, new LoadServers());
 	}
 	
 	@Override
 	public void onDisable() {
-		tcp.close();
+		try {
+			MySQL.getConnection().close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void LoadConfig() {
@@ -55,14 +56,11 @@ public class SSBungee extends Plugin {
 			if (!fconfig.exists()) {
 				fconfig.createNewFile();
 				Configuration config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(fconfig);
-				config.set("version", getDescription().getVersion());
 				config.set("database.host", "localhost");
 				config.set("database.port", 3306);
 				config.set("database.db", "akonia_cloudsystem");
 				config.set("database.user", "root");
 				config.set("database.password", "U2ViYXN0aWFuMTIy");
-				config.set("tcpport", 25566);
-				config.set("bcpath", "/home/ServerSystem/BungeeCord/");
 				ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, fconfig);
 			}
 			Configuration config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(fconfig);
@@ -71,43 +69,13 @@ public class SSBungee extends Plugin {
 			database_db = config.getString("database.db");
 			database_user = config.getString("database.user");
 			database_password = config.getString("database.password");
-			bcpath = config.getString("bcpath");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public void addServerToConfig(MinecraftServer mcs) {
-		try {
-			File fconfig = new File(bcpath, "config.yml");
-			Configuration config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(fconfig);
-			config.set("servers." + mcs.getBungeeCordServername() + ".motd", "CloudSystem_" + mcs.getBungeeCordServername());
-			config.set("servers." + mcs.getBungeeCordServername() + ".address", "localhost:" + mcs.getPort());
-			config.set("servers." + mcs.getBungeeCordServername() + ".restricted", false);
-			ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, fconfig);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		try {
-			BungeeCord.getInstance().config.load();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void removeServerFromConfig(MinecraftServer mcs) {
-		try {
-			File fconfig = new File(bcpath, "config.yml");
-			Configuration config = ConfigurationProvider.getProvider(YamlConfiguration.class).load(fconfig);
-			config.set("servers." + mcs.getBungeeCordServername(), null);
-			ConfigurationProvider.getProvider(YamlConfiguration.class).save(config, fconfig);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		try {
-			BungeeCord.getInstance().config.load();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public void addServerToList(MinecraftServer mcs) {
+		ServerInfo server = ProxyServer.getInstance().constructServerInfo(mcs.getBungeeCordServername(), InetSocketAddress.createUnresolved("95.156.227.75", mcs.getPort()), "CloudSystem", false);
+		ProxyServer.getInstance().getServers().put(mcs.getBungeeCordServername(), server);
 	}
 }

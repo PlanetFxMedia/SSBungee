@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.SebastianMikolai.PlanetFx.ServerSystem.SSBungee.SSBungee;
 import de.SebastianMikolai.PlanetFx.ServerSystem.SSBungee.MinecraftServer.MinecraftServer;
@@ -22,7 +24,7 @@ public class MySQL {
 			e.printStackTrace();
 			return null;
 		}
-	}
+	}	
 	
 	public static Connection getConnection() {
 		try {
@@ -53,23 +55,18 @@ public class MySQL {
 		}
 	}
 	
-	public static void addMinecraftServer(MinecraftServer mcs) {
+	public static List<MinecraftServer> getMinecraftServers() {
+		List<MinecraftServer> MinecraftServers = new ArrayList<MinecraftServer>();
 		try {
 			Connection c = getConnection();
 			Statement stmt = c.createStatement();
-			stmt.execute("INSERT INTO MinecraftServer (BungeeCordServername, Port, Map, Modi) VALUES ('" + mcs.getBungeeCordServername() + "', '" + mcs.getPort() +  "', '" + mcs.getMap() + "', '" + mcs.getModi() + "')");
+			ResultSet rss = stmt.executeQuery("SELECT * FROM MinecraftServer");
+			while (rss.next()) {
+				MinecraftServers.add(new MinecraftServer(rss.getString("BungeeCordServername"), rss.getInt("Port"), rss.getString("Map"), rss.getString("Modi")));
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public static void deleteMinecraftServer(String BungeeCordServername) {
-		try {
-			Connection c = getConnection();
-			Statement stmt = c.createStatement();
-			stmt.execute("DELETE FROM MinecraftServer WHERE BungeeCordServername='" + BungeeCordServername + "'");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		return MinecraftServers;
 	}
 }
