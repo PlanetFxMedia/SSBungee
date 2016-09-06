@@ -75,7 +75,7 @@ public class SSBungee extends Plugin {
 	}
 	
 	public void addServerToList(MinecraftServer mcs) {
-		ServerInfo server = ProxyServer.getInstance().constructServerInfo(mcs.getBungeeCordServername(), InetSocketAddress.createUnresolved("95.156.227.75", mcs.getPort()), "CloudSystem", false);
+		ServerInfo server = ProxyServer.getInstance().constructServerInfo(mcs.getBungeeCordServername(), InetSocketAddress.createUnresolved("95.156.227.75", mcs.getPort()), "CloudSystem", true);
 		ProxyServer.getInstance().getServers().put(mcs.getBungeeCordServername(), server);
 	}
 }
